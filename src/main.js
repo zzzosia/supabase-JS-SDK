@@ -1,7 +1,5 @@
 // Supabase client setup
-const supabaseUrl = 'https://eohovqvrwlupfctqzhdk.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvaG92cXZyd2x1cGZjdHF6aGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2NzUxMjcsImV4cCI6MjA2MzI1MTEyN30.lvHieYaC0EiorhK-HWaD57AZq_cg7Ui7pKQ1yvuvxQI';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+import { supabase } from './api-client.js';
 
 // ===== Sesja i autoryzacja =====
 const logoutButton = document.getElementById('logout-button');
