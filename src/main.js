@@ -28,13 +28,12 @@ function setupNav(){
   if (!nav) return;
   if (currentUser) {
     nav.innerHTML = `
-      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering">strona główna</a></li>
-      <li class="font-medium px-4 text-white">${currentUser.email}</li>
-      <li><button id="logout-button" class="bg-primary text-white hover:bg-hovering">wyloguj</button></li>`;
+      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">strona główna</a></li>
+      <li><button id="logout-button" class="bg-primary text-white hover:bg-hovering py-2 px-4">wyloguj</button></li>`;
   } else {
     nav.innerHTML = `
-      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering">strona główna</a></li>
-      <li><a href="login/index.html" class="bg-primary text-white hover:bg-hovering">zaloguj</a></li>`;
+      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">strona główna</a></li>
+      <li><a href="login/index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">zaloguj</a></li>`;
   }
 }
 
