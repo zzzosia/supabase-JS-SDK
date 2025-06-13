@@ -4,6 +4,9 @@ import { supabase } from './api-client.js';
 // ===== Sesja i autoryzacja =====
 const logoutButton = document.getElementById('logout-button');
 const loginRedirect = document.getElementById('login-redirect');
+const addButton = document.getElementById('add-article-button');
+const addModal = document.getElementById('add-modal');
+const editModal = document.getElementById('edit-modal');
 
 supabase.auth.onAuthStateChange((_event, session) => {
   handleSession(session);
@@ -112,10 +115,6 @@ document.addEventListener('click', async (e) => {
 });
 
 // ===== Modal dodawania =====
-const addButton = document.getElementById('add-article-button');
-const addModal = document.getElementById('add-modal');
-const editModal = document.getElementById('edit-modal');
-
 addButton?.addEventListener('click', async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -152,9 +151,7 @@ document.getElementById('add-form')?.addEventListener('submit', async (e) => {
   main();
 });
 
-const editModal = document.getElementById('edit-modal');
-
-document.getElementById('edit-form').addEventListener('submit', async (e) => {
+document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   // zbierz dane
@@ -166,28 +163,25 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
   const updated_at = new Date().toISOString();
 
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('article')
-      .update({ title, subtitle, content, author, created_at: updated_at })
+      .update({ title, subtitle, content, author, updated_at })
       .eq('id', id);
 
     if (error) throw error;
 
-    // zamknij modal, jeśli jest otwarty
     if (editModal.open) {
       editModal.close();
     }
 
     main(); // odśwież listę artykułów
-
   } catch (error) {
     console.error('Błąd zapisu:', error.message);
     alert('Nie udało się zapisać: ' + error.message);
   }
 });
 
-
-
+// Zamknięcie modali po kliknięciu poza formularz
 addModal?.addEventListener('click', e => {
   const form = addModal.querySelector('form');
   if (!form.contains(e.target)) {
