@@ -1,7 +1,8 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
-import { readdir } from 'node:fs/promises'
+//import { glob } from 'node:fs/promises'
+import { readdir, stat } from 'node:fs/promises'
 import tailwindcss from '@tailwindcss/vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -25,7 +26,7 @@ async function findHtmlFiles(dir) {
 
 const inputs = await findHtmlFiles(resolve(__dirname, 'src'))
 
-console.log('HTML inputs for build:', inputs)
+console.log(inputs)
 
 export default defineConfig({
   plugins: [
@@ -35,12 +36,11 @@ export default defineConfig({
   base: '/supabase-JS-SDK/',
 
   root: resolve(__dirname, 'src'),
-
   build: {
     emptyOutDir: true,
     rollupOptions: {
-      input: inputs, 
+      input: inputs,
     },
-    outDir: resolve(__dirname, 'docs'), 
+    outDir: resolve(__dirname, 'dist'),
   },
 })
