@@ -1,1 +1,2 @@
 # vite-multipage-starter
+test
