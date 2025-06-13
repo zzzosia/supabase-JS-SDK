@@ -154,6 +154,7 @@ document.getElementById('add-form')?.addEventListener('submit', async (e) => {
 
 document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  console.log('Submit form - start');
 
   const id = document.getElementById('edit-id').value;
   const title = document.getElementById('edit-title').value;
@@ -162,19 +163,25 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
   const author = document.getElementById('edit-author').value;
   const updated_at = new Date().toISOString();
 
-  const { error } = await supabase
+  console.log({ id, title, subtitle, content, author });
+
+  const { data, error } = await supabase
     .from('article')
     .update({ title, subtitle, content, author, created_at: updated_at })
     .eq('id', id);
 
   if (error) {
-    console.error('błąd...', error);
+    console.error('Błąd podczas zapisu:', error);
+    alert('Nie udało się zapisać zmian: ' + error.message);
     return;
   }
+
+  console.log('Zapisano:', data);
 
   editModal.close();
   main();
 });
+
 
 addModal?.addEventListener('click', e => {
   const form = addModal.querySelector('form');
