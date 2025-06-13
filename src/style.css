@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #472950;
+    --color-hovering: #C0A4C4;
+    --color-secondary: #D46A70;
+    --color-hoveringS: #F6CBB6;
+    --color-pageBG: #D46A70;
+    --color-fontCol: #F6CBB6;
+}
