@@ -154,7 +154,6 @@ document.getElementById('add-form')?.addEventListener('submit', async (e) => {
 document.getElementById('edit-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // zbierz dane
   const id = document.getElementById('edit-id').value;
   const title = document.getElementById('edit-title').value;
   const subtitle = document.getElementById('edit-subtitle').value;
@@ -162,25 +161,34 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
   const author = document.getElementById('edit-author').value;
   const updatedCreatedAt = new Date().toISOString();
 
+  console.log('Wysyłam update:', { id, title, subtitle, content, author, created_at: updatedCreatedAt });
+
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('article')
       .update({ title, subtitle, content, author, created_at: updatedCreatedAt })
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Błąd podczas zapisu:', error);
+      alert('Nie udało się zapisać: ' + error.message);
+      return;
+    }
+
+    console.log('Update udany:', data);
 
     if (editModal.open) {
       editModal.close();
     }
 
-    main(); // odśwież listę artykułów
+    main();
 
   } catch (error) {
-    console.error('Błąd zapisu:', error.message);
+    console.error('Exception:', error);
     alert('Nie udało się zapisać: ' + error.message);
   }
 });
+
 
 
 // Zamknięcie modali po kliknięciu poza formularz
