@@ -151,44 +151,44 @@ document.getElementById('add-form')?.addEventListener('submit', async (e) => {
   main();
 });
 
-document.getElementById('edit-form').addEventListener('submit', async (e) => {
+document.getElementById('article-form').onsubmit = async (e) => {
   e.preventDefault();
-
-  const id = document.getElementById('edit-id').value;
-  const title = document.getElementById('edit-title').value;
-  const subtitle = document.getElementById('edit-subtitle').value;
-  const content = document.getElementById('edit-content').value;
-  const author = document.getElementById('edit-author').value;
-  const updatedCreatedAt = new Date().toISOString();
-
-  console.log('Wysyłam update:', { id, title, subtitle, content, author, created_at: updatedCreatedAt });
-
+  const id = document.getElementById('article-id').value;
+  const title = e.target.title.value;
+  const content = e.target.content.value;
+  const author = e.target.author.value;
+  const subtitle = e.target.subtitle ? e.target.subtitle.value : null;
+  let tags = e.target.tags ? e.target.tags.value : '["default"]';
   try {
-    const { data, error } = await supabase
-      .from('article')
-      .update({ title, subtitle, content, author, created_at: updatedCreatedAt })
-      .eq('id', id);
-
-    if (error) {
-      console.error('Błąd podczas zapisu:', error);
-      alert('Nie udało się zapisać: ' + error.message);
-      return;
-    }
-
-    console.log('Update udany:', data);
-
-    if (editModal.open) {
-      editModal.close();
-    }
-
-    main();
-
-  } catch (error) {
-    console.error('Exception:', error);
-    alert('Nie udało się zapisać: ' + error.message);
+    tags = JSON.parse(tags);
+  } catch {
+    tags = ["default"];
   }
-});
 
+  const payload = {
+    title,
+    content,
+    author,
+    subtitle,
+    tags,
+    created_at: new Date().toISOString()
+  };
+
+  let result;
+  if (id) {
+    result = await supabase.from('article').update(payload).eq('id', id);
+  } else {
+    result = await supabase.from('article').insert(payload);
+  }
+
+  if (result.error) {
+    alert('Błąd: ' + result.error.message);
+    return;
+  }
+
+  document.getElementById('article-modal').close();
+  await fetchArticles();
+};
 
 
 // Zamknięcie modali po kliknięciu poza formularz
