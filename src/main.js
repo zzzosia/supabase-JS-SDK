@@ -28,12 +28,10 @@ function setupNav(){
   if (!nav) return;
   if (currentUser) {
     nav.innerHTML = `
-      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">strona główna</a></li>
-      <li><button id="logout-button" class="bg-primary text-white hover:bg-hovering py-2 px-4">wyloguj</button></li>`;
+      <li><button id="logout-button" class="bg-primary text-white hover:bg-hovering py-2 px-4 mt-1 ml-2">wyloguj</button></li>`;
   } else {
     nav.innerHTML = `
-      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">strona główna</a></li>
-      <li><a href="login/index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">zaloguj</a></li>`;
+      <li><a href="login/index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4 mt-1 ml-2">zaloguj</a></li>`;
   }
 }
 
