@@ -152,10 +152,12 @@ document.getElementById('add-form')?.addEventListener('submit', async (e) => {
   main();
 });
 
-document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  console.log('Submit form - start');
+const editModal = document.getElementById('edit-modal');
 
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // zbierz dane
   const id = document.getElementById('edit-id').value;
   const title = document.getElementById('edit-title').value;
   const subtitle = document.getElementById('edit-subtitle').value;
@@ -163,24 +165,27 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
   const author = document.getElementById('edit-author').value;
   const updated_at = new Date().toISOString();
 
-  console.log({ id, title, subtitle, content, author });
+  try {
+    const { data, error } = await supabase
+      .from('article')
+      .update({ title, subtitle, content, author, created_at: updated_at })
+      .eq('id', id);
 
-  const { data, error } = await supabase
-    .from('article')
-    .update({ title, subtitle, content, author, created_at: updated_at })
-    .eq('id', id);
+    if (error) throw error;
 
-  if (error) {
-    console.error('Błąd podczas zapisu:', error);
-    alert('Nie udało się zapisać zmian: ' + error.message);
-    return;
+    // zamknij modal, jeśli jest otwarty
+    if (editModal.open) {
+      editModal.close();
+    }
+
+    main(); // odśwież listę artykułów
+
+  } catch (error) {
+    console.error('Błąd zapisu:', error.message);
+    alert('Nie udało się zapisać: ' + error.message);
   }
-
-  console.log('Zapisano:', data);
-
-  editModal.close();
-  main();
 });
+
 
 
 addModal?.addEventListener('click', e => {
