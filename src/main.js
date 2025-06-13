@@ -151,7 +151,7 @@ document.getElementById('add-form')?.addEventListener('submit', async (e) => {
   main();
 });
 
-document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   // zbierz dane
@@ -160,12 +160,12 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
   const subtitle = document.getElementById('edit-subtitle').value;
   const content = document.getElementById('edit-content').value;
   const author = document.getElementById('edit-author').value;
-  const updated_at = new Date().toISOString();
+  const updatedCreatedAt = new Date().toISOString();
 
   try {
     const { error } = await supabase
       .from('article')
-      .update({ title, subtitle, content, author, updated_at })
+      .update({ title, subtitle, content, author, created_at: updatedCreatedAt })
       .eq('id', id);
 
     if (error) throw error;
@@ -175,11 +175,13 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     }
 
     main(); // odśwież listę artykułów
+
   } catch (error) {
     console.error('Błąd zapisu:', error.message);
     alert('Nie udało się zapisać: ' + error.message);
   }
 });
+
 
 // Zamknięcie modali po kliknięciu poza formularz
 addModal?.addEventListener('click', e => {
