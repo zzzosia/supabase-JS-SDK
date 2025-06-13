@@ -1,61 +1,41 @@
-// Supabase client setup
-import { supabase } from './api-client.js';
+import { supabase } from './supabase.js';
 
-// ===== Sesja i autoryzacja =====
-const logoutButton = document.getElementById('logout-button');
 const loginRedirect = document.getElementById('login-redirect');
+const logoutButton = document.getElementById('logout-button');
 const addButton = document.getElementById('add-article-button');
 const addModal = document.getElementById('add-modal');
 const editModal = document.getElementById('edit-modal');
 
-supabase.auth.onAuthStateChange((_event, session) => {
-  handleSession(session);
-});
+const addForm = document.getElementById('add-form');
+const editForm = document.getElementById('edit-form');
 
-function handleSession(session) {
+// AUTH
+supabase.auth.getSession().then(({ data: { session } }) => {
   if (session) {
-    logoutButton?.classList.remove('hidden');
-    loginRedirect?.classList.add('hidden');
+    loginRedirect.classList.add('hidden');
+    logoutButton.classList.remove('hidden');
   } else {
-    logoutButton?.classList.add('hidden');
-    loginRedirect?.classList.remove('hidden');
-  }
-}
-
-async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
-  handleSession(session);
-  setupEventListeners();
-  await main();
-}
-
-init();
-
-logoutButton?.addEventListener('click', async () => {
-  const { error } = await supabase.auth.signOut();
-  if (!error) {
-    alert('Wylogowano');
-    window.location.href = 'login/';
-  } else {
-    console.error('Podczas wylogowywania wystąpił problem', error);
+    loginRedirect.classList.remove('hidden');
+    logoutButton.classList.add('hidden');
   }
 });
 
-async function main() {
-  const [{ data: articles, error }, { data: { session } }] = await Promise.all([
+logoutButton.addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  location.reload();
+});
+
+// FETCH AND RENDER
+async function fetchArticles() {
+  const [{ data: articles }, { data: { session } }] = await Promise.all([
     supabase.from('article').select('*').order('created_at', { ascending: false }),
     supabase.auth.getSession()
   ]);
 
-  if (error) {
-    console.error('Fetch error:', error);
-    return;
-  }
+  const container = document.querySelector('.articles');
+  if (!container) return;
 
-  const articlesContainer = document.querySelector('.articles');
-  if (!articlesContainer) return;
-
-  const articlesList = articles.map((article) => `
+  container.innerHTML = articles.map(article => `
     <article class="article py-6 bg-white/50 p-6 grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-x-3 gap-y-2" data-id="${article.id}">
       <div class="col-start-2 row-start-1">
         <h2 class="text-xl font-semibold">${article.title}</h2>
@@ -67,137 +47,88 @@ async function main() {
         </div>
       </div>
       <div class="col-start-2 row-start-2 flex space-x-2">
-        ${session ? `<button class="edit-button bg-primary hover:bg-hovering px-3 py-1 rounded text-white cursor-pointer">edytuj</button>
-        <button class="delete-button bg-secondary text-white px-3 py-1 rounded hover:bg-hoveringS cursor-pointer">usuń</button>` : ''}
+        ${session ? `
+          <button class="edit-button bg-primary hover:bg-hovering px-3 py-1 rounded text-white cursor-pointer">edytuj</button>
+          <button class="delete-button bg-secondary text-white px-3 py-1 rounded hover:bg-hoveringS cursor-pointer">usuń</button>
+        ` : ''}
       </div>
     </article>
-  `).join('\n');
+  `).join('');
 
-  articlesContainer.innerHTML = articlesList;
+  setupEditAndDeleteButtons();
 }
 
-function setupEventListeners() {
-  document.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('edit-button')) {
-      const articleEl = e.target.closest('.article');
-      const id = articleEl.dataset.id;
-      const { data: article, error } = await supabase.from('article').select('*').eq('id', id).single();
-      if (error) {
-        console.error('błąd...', error);
-        return;
-      }
+// SETUP DYNAMIC BUTTON EVENTS
+function setupEditAndDeleteButtons() {
+  document.querySelectorAll('.edit-button').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const article = e.target.closest('.article');
+      const id = Number(article.dataset.id);
+      const title = article.querySelector('h2').textContent;
+      const subtitle = article.querySelector('h3').textContent;
+      const content = article.querySelector('p').textContent;
+      const author = article.querySelector('address').textContent;
 
-      document.getElementById('edit-id').value = article.id;
-      document.getElementById('edit-title').value = article.title;
-      document.getElementById('edit-subtitle').value = article.subtitle;
-      document.getElementById('edit-content').value = article.content;
-      document.getElementById('edit-author').value = article.author;
+      editForm['edit-id'].value = id;
+      editForm['edit-title'].value = title;
+      editForm['edit-subtitle'].value = subtitle;
+      editForm['edit-content'].value = content;
+      editForm['edit-author'].value = author;
 
-      editModal?.showModal();
-    }
-
-    if (e.target.classList.contains('delete-button')) {
-      const articleEl = e.target.closest('.article');
-      const id = articleEl.dataset.id;
-      const confirmed = confirm('czy na pewno chcesz usunąć?');
-      if (!confirmed) return;
-      const { error } = await supabase.from('article').delete().eq('id', id);
-      if (error) {
-        console.error("błąd podczas usuwania", error);
-        return;
-      }
-      alert('usunięto');
-      await main();
-    }
+      editModal.showModal();
+    });
   });
 
-  addButton?.addEventListener('click', async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      window.location.href = 'login/';
-      return;
-    }
-    addModal?.showModal();
-  });
-
-  document.getElementById('cancel-add')?.addEventListener('click', () => addModal?.close());
-  document.getElementById('cancel-edit')?.addEventListener('click', () => editModal?.close());
-
-  document.getElementById('add-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const title = document.getElementById('add-title').value;
-    const subtitle = document.getElementById('add-subtitle').value;
-    const content = document.getElementById('add-content').value;
-    const author = document.getElementById('add-author').value;
-    const created_at = new Date().toISOString();
-
-    const { error } = await supabase.from('article').insert([
-      { title, subtitle, content, author, created_at }
-    ]);
-
-    if (error) {
-      console.error('błąd podczas dodawania', error);
-      return;
-    }
-
-    addModal?.close();
-    document.getElementById('add-form').reset();
-    await main();
-  });
-
-  const editForm = document.getElementById('article-form');
-  if (editForm) {
-    editForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('edit-id').value;
-      const title = e.target.title.value;
-      const content = e.target.content.value;
-      const author = e.target.author.value;
-      const subtitle = e.target.subtitle ? e.target.subtitle.value : null;
-      let tags = e.target.tags ? e.target.tags.value : '["default"]';
-      try {
-        tags = JSON.parse(tags);
-      } catch {
-        tags = ["default"];
+  document.querySelectorAll('.delete-button').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      const article = e.target.closest('.article');
+      const id = Number(article.dataset.id);
+      if (confirm('Czy na pewno chcesz usunąć ten artykuł?')) {
+        const { error } = await supabase.from('article').delete().eq('id', id);
+        if (error) console.error(error);
+        await fetchArticles();
       }
-
-      const payload = {
-        title,
-        content,
-        author,
-        subtitle,
-        tags,
-        created_at: new Date().toISOString()
-      };
-
-      let result;
-      if (id) {
-        result = await supabase.from('article').update(payload).eq('id', id);
-      } else {
-        result = await supabase.from('article').insert(payload);
-      }
-
-      if (result.error) {
-        alert('Błąd: ' + result.error.message);
-        return;
-      }
-
-      editModal?.close();
-      await main();
-    };
-  }
-
-  addModal?.addEventListener('click', e => {
-    const form = addModal.querySelector('form');
-    if (!form.contains(e.target)) {
-      addModal.close();
-    }
-  });
-
-  editModal?.addEventListener('click', e => {
-    const form = editModal.querySelector('form');
-    if (!form.contains(e.target)) {
-      editModal.close();
-    }
+    });
   });
 }
+
+// ADD ARTICLE
+addButton.addEventListener('click', () => addModal.showModal());
+document.getElementById('cancel-add').addEventListener('click', () => addModal.close());
+
+addForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = new FormData(addForm);
+  const { error } = await supabase.from('article').insert({
+    title: formData.get('add-title'),
+    subtitle: formData.get('add-subtitle'),
+    content: formData.get('add-content'),
+    author: formData.get('add-author')
+  });
+  if (error) console.error(error);
+  addModal.close();
+  addForm.reset();
+  await fetchArticles();
+});
+
+// EDIT ARTICLE
+editForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = new FormData(editForm);
+  const id = Number(formData.get('edit-id'));
+  const { error } = await supabase.from('article').update({
+    title: formData.get('edit-title'),
+    subtitle: formData.get('edit-subtitle'),
+    content: formData.get('edit-content'),
+    author: formData.get('edit-author')
+  }).eq('id', id);
+  if (error) console.error(error);
+  editModal.close();
+  editForm.reset();
+  await fetchArticles();
+});
+
+document.getElementById('cancel-edit').addEventListener('click', () => editModal.close());
+
+// START
+fetchArticles();
