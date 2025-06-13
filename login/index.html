@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zofia Mrozek</title>
+    <script type="module" crossorigin src="/supabase-JS-SDK/assets/index-gdumbA1z.js"></script>
+    <link rel="modulepreload" crossorigin href="/supabase-JS-SDK/assets/api-client-DRU5sq0r.js">
+    <link rel="stylesheet" crossorigin href="/supabase-JS-SDK/assets/api-client-JhCiSErM.css">
+  </head>
+  <body class="min-h-screen flex items-center justify-center bg-secondary">
+    <div class="p-10 w-full max-w-md text-center bg-fontCol/25 drop-shadow-secondary">
+      <div id="app" class="mt-1">
+        <nav>
+          <a href="../" class="text-secondary uppercase hover:text-hoveringS transition-colors cursor-pointer text-xs">powrót do strony głównej</a>
+        </nav>
+      </div>
+      <h1 class="text-2xl uppercase text-primary mt-5 mb-3">zaloguj się</h1>
+      <form id="login-form" class="flex flex-col">
+        <label for="email" class="text-sm font-mono text-left text-primary">e-mail:</label>
+        <input type="email" id="email" name="email" placeholder="zosiamrozek123@o2.pl" required class="px-5 py-3 mb-4 bg-white"/>
+        <label for="password" class="text-sm font-mono text-left text-primary">hasło:</label>
+        <input type="password" id="password" name="password" placeholder="haslo maslo" required class="px-5 py-3 mb-4 bg-white"/>
+        <button type="submit" class="px-5 py-3 mt-5 bg-primary text-fontCol uppercase font-semibold hover:bg-hovering hover:text-white cursor-pointer">zaloguj</button>
+      </form>
+      <div id="login-message" class="mt-4 text-sm"></div>
+    </div>
+  </body>
+</html>
