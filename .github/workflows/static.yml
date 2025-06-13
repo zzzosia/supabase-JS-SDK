@@ -39,12 +39,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd project
           npm install
 
       - name: Build project
         run: |
-          cd project
           npm run build -- --base=/test/
 
       - name: Setup Pages
