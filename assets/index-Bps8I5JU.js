@@ -1,0 +1,19 @@
+import{s as o}from"./api-client-lJeWDOGD.js";let l=null;document.addEventListener("DOMContentLoaded",async()=>{const{data:{session:t},error:e}=await o.auth.getSession();if(e)return console.error("Supabase error:",e);l=t?t.user:null,m(),await i();const n=document.getElementById("add-article-button");n&&(l?(n.style.display="",f(),b()):n.style.display="none"),l&&y()});function m(){const t=document.getElementById("nav-list");t&&(l?t.innerHTML=`
+      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">strona główna</a></li>
+      <li><button id="logout-button" class="bg-primary text-white hover:bg-hovering py-2 px-4">wyloguj</button></li>`:t.innerHTML=`
+      <li><a href="index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">strona główna</a></li>
+      <li><a href="login/index.html" class="bg-primary text-white hover:bg-hovering py-2 px-4">zaloguj</a></li>`)}function y(){document.getElementById("logout-button").addEventListener("click",async()=>{await o.auth.signOut(),window.location.reload()})}async function i(){const{data:t,error:e}=await o.from("article").select("*").order("created_at",{ascending:!1});if(e)return console.error(e);const n=document.querySelector(".articles");n.innerHTML=t.map(p).join(""),document.querySelectorAll(".edit-button").forEach(a=>a.onclick=h),document.querySelectorAll(".delete-button").forEach(a=>a.onclick=v)}function p(t){const e=t.created_at?new Date(t.created_at).toLocaleDateString():"";return`
+    <article class="rticle py-6 bg-white/50 p-6 grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-x-3 gap-y-2">
+      <header>
+        <p class="text-xl font-semibold">${t.title}</p>
+        <p class="tmt-2">${t.subtitle||""}</p>
+        <p class="not-italic mt-1.5">autor: ${t.author||""}</p>
+        <p class="not-italic mt-1.5">data: ${e}</p>
+      </header>
+      <p>${t.content}</p>
+      ${l?`
+        <footer class="mt-3 flex gap-2">
+          <button data-id="${t.id}" class="edit-button bg-primary hover:bg-hovering px-3 py-1 rounded text-white cursor-pointer">edytuj</button>
+          <button data-id="${t.id}" class="delete-button bg-secondary text-white px-3 py-1 rounded hover:bg-hoveringS cursor-pointer">usuń</button>
+        </footer>`:""}
+    </article>`}function f(){document.getElementById("add-article-button").onclick=()=>s()}function b(){const t=document.getElementById("article-modal");document.getElementById("cancel-button").onclick=()=>t.close(),document.getElementById("article-form").onsubmit=w}async function s(t=null){const e=document.getElementById("article-modal");document.getElementById("modal-title").textContent=t?"Edytuj artykuł":"Dodaj artykuł",document.getElementById("article-id").value=(t==null?void 0:t.id)||"",document.getElementById("title").value=(t==null?void 0:t.title)||"",document.getElementById("subtitle").value=(t==null?void 0:t.subtitle)||"",document.getElementById("content").value=(t==null?void 0:t.content)||"",document.getElementById("author").value=(t==null?void 0:t.author)||"",e.showModal()}async function h(t){const{data:e}=await o.from("article").select("*").eq("id",t.target.dataset.id).single();s(e)}async function v(t){await o.from("article").delete().eq("id",t.target.dataset.id),await i()}async function w(t){t.preventDefault();const e=document.getElementById("article-id").value,n=t.target.title.value,a=t.target.content.value,c=t.target.author.value,g=t.target.subtitle?t.target.subtitle.value:null;let r=t.target.tags?t.target.tags.value:'["default"]';try{r=JSON.parse(r)}catch{r=["default"]}const u={title:n,content:a,author:c,subtitle:g,tags:r,created_at:new Date().toISOString()};let d;if(e?d=await o.from("article").update(u).eq("id",e):d=await o.from("article").insert(u),d.error){alert("error: "+d.error.message);return}document.getElementById("article-modal").close(),await i()}
