@@ -52,11 +52,11 @@ async function main() {
   if (!articlesContainer) return;
 
   const articlesList = articles.map((article) => `
-    <article class="article py-6 border-b-10 border-pageBG bg-secondary/50 rounded p-6 grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-x-3 gap-y-2" data-id="${article.id}">
+    <article class="article py-6 bg-white/50 p-6 grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-x-3 gap-y-2" data-id="${article.id}">
       <div class="col-start-2 row-start-1">
         <h2 class="text-xl font-semibold">${article.title}</h2>
         <h3 class="mt-2">${article.subtitle || ''}</h3>
-        <div class="text-sm text-black/70 mt-2">
+        <div class="text-sm text-primary/70 mt-2">
           <address class="not-italic mt-1.5" rel="author">${article.author}</address>
           <time datetime="${article.created_at}">${new Date(article.created_at).toLocaleDateString()}</time>
           <p class="mb-4 mt-1.5 whitespace-pre-wrap">${article.content}</p>
